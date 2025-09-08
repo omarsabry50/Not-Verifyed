@@ -36,33 +36,41 @@ export const getCategory = asyncHandler(async (req, res, next) => {
 })
 
 export const createCategory = asyncHandler(async (req, res, next) => {
-    const { name } = req.body
+    const { name } = req.body;
 
-    if(await categoryModel.findOne({ name})){
-        next(new AppError( 'Category name already exists', 400))
+    if (!name) {
+        return next(new AppError('Category name is required', 400));
     }
 
-    let customId = nanoid(5)
-    const { secure_url, public_id } = await cloudinary.uploader.upload(req.file.path, {
-        folder: `commerce/categories/${customId}`
-    })
+    const existing = await categoryModel.findOne({ name });
+    if (existing) {
+        return next(new AppError('Category name already exists', 400));
+    }
 
-    req.folder = `commerce/categories/${customId}`
-    
+    // generate unique ID
+    let customId = nanoid(5);
 
+    // upload image
+    let imageData = null;
+    if (req.file && req.file.path) {
+        const { secure_url, public_id } = await cloudinary.uploader.upload(req.file.path, {
+            folder: `commerce/categories/${customId}`
+        });
+        imageData = { secure_url, public_id };
+    }
+
+    // create category without requiring req.user
     const category = await categoryModel.create({
         name,
-        slug: slugify(name,{replacement:'-',lower : true}),
-        image: { secure_url, public_id },
-        createdBy: req.user._id ,
+        slug: slugify(name, { replacement: '-', lower: true }),
+        image: imageData,
+        createdBy: req.user ? req.user._id : null, // optional
         customId
-    })
+    });
 
-    req.data = {model : categoryModel , id : category._id}
+    res.status(201).json({ msg: 'category created', category });
+});
 
-
-    res.status(201).json({ msg: 'category created', category })
-})
 
 export const updateCategory = asyncHandler(async (req, res, next) => {
     const { name } = req.body
