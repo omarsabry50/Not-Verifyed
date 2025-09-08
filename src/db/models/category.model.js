@@ -22,7 +22,7 @@ let categorySchema = mongoose.Schema({
     createdBy:{
         type: Types.ObjectId,
         ref: 'user',
-        required: true
+        required: false
     }
     ,
     image:{
