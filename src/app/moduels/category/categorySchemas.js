@@ -6,7 +6,7 @@ export const createCategorySchema = {
         name: joi.string().required(),
     }),
 
-    headers: glopalSchema.headers.required(),
+    // headers: glopalSchema.headers.required(),
 
     file:glopalSchema.file.required()
 } 

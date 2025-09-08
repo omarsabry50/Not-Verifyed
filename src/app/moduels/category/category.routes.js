@@ -14,7 +14,9 @@ categoryRouter.use('/:categoryId/subCategory',subcategoryRouter)
 categoryRouter.get('/',getCategories)
 categoryRouter.get('/:id',getCategory)
 categoryRouter.delete('/:id',deleteCategory)
-categoryRouter.post('/createCategory',auth(["admin"]),multerHost().single("photo"),GValidator(createCategorySchema),createCategory)
+// categoryRouter.post('/createCategory',auth(["admin"]),multerHost().single("photo"),GValidator(createCategorySchema),createCategory)
+categoryRouter.post('/createCategory', multerHost().single("photo"), GValidator(createCategorySchema), createCategory)
+
 categoryRouter.put('/updateCategory/:id',auth(["admin"]),multerHost().single("photo"),GValidator(updateCategorySchema),updateCategory)
 
 export default categoryRouter
